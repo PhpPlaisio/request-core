@@ -7,8 +7,8 @@
     "Core"
   ],
   "require": {
-    "php": ">=7.0.0",
-    "setbased/abc-request": "^0.9.0"
+    "php": ">=7.1.0",
+    "setbased/abc-request": "*"
   },
   "require-dev": {
     "phing/phing": "^2.0.0",
@@ -27,6 +27,6 @@
     }
   },
   "config": {
-    "bin-dir": "bin"
+    "bin-dir": "bin/"
   }
 }

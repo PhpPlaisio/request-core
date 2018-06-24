@@ -3,13 +3,12 @@
 namespace SetBased\Abc\Request;
 
 /**
- * Classes providing information about an HTTP request.
+ * Class providing information about an HTTP request.
  *
  * It provides an interface to retrieve request parameters from
  * <ul>
  * <li>$_SERVER resolving inconsistency among different web servers
  * <li>$_POST
- * <li>$_GET
  * <li>$_COOKIES
  * <li>REST parameters sent via other HTTP methods
  * </ul>
@@ -25,7 +24,7 @@ class CoreRequest implements Request
    * @api
    * @since 1.0.0
    */
-  public function getMethod()
+  public function getMethod(): string
   {
     if (isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']))
     {
@@ -49,7 +48,7 @@ class CoreRequest implements Request
    * @api
    * @since 1.0.0
    */
-  public function getRequestUri()
+  public function getRequestUri(): string
   {
     if (isset($_SERVER['REQUEST_URI']))
     {
@@ -74,7 +73,7 @@ class CoreRequest implements Request
    * @api
    * @since 1.0.0
    */
-  public function isAjax()
+  public function isAjax(): bool
   {
     return (($_SERVER['HTTP_X_REQUESTED_WITH']) ?? '')==='XMLHttpRequest';
   }
@@ -88,7 +87,7 @@ class CoreRequest implements Request
    * @api
    * @since 1.0.0
    */
-  public function isDelete()
+  public function isDelete(): bool
   {
     return $this->getMethod()==='DELETE';
   }
@@ -102,7 +101,7 @@ class CoreRequest implements Request
    * @api
    * @since 1.0.0
    */
-  public function isGet()
+  public function isGet(): bool
   {
     return $this->getMethod()==='GET';
   }
@@ -116,7 +115,7 @@ class CoreRequest implements Request
    * @api
    * @since 1.0.0
    */
-  public function isHead()
+  public function isHead(): bool
   {
     return $this->getMethod()==='HEAD';
   }
@@ -131,7 +130,7 @@ class CoreRequest implements Request
    * @api
    * @since 1.0.0
    */
-  public function isOptions()
+  public function isOptions(): bool
   {
     return $this->getMethod()==='OPTIONS';
   }
@@ -145,7 +144,7 @@ class CoreRequest implements Request
    * @api
    * @since 1.0.0
    */
-  public function isPatch()
+  public function isPatch(): bool
   {
     return $this->getMethod()==='PATCH';
   }
@@ -159,7 +158,7 @@ class CoreRequest implements Request
    * @api
    * @since 1.0.0
    */
-  public function isPost()
+  public function isPost(): bool
   {
     return $this->getMethod()==='POST';
   }
@@ -173,7 +172,7 @@ class CoreRequest implements Request
    * @api
    * @since 1.0.0
    */
-  public function isPut()
+  public function isPut(): bool
   {
     return $this->getMethod()==='PUT';
   }
