@@ -1,5 +1,5 @@
 <?php
-//----------------------------------------------------------------------------------------------------------------------
+
 namespace SetBased\Abc\Request;
 
 /**
@@ -94,6 +94,28 @@ class CoreRequest implements Request
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Returns true if the current environment is a development environment.
+   *
+   * @return bool
+   */
+  public function isEnvDev(): bool
+  {
+    return ($_SERVER['ABC_ENV']==='dev');
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Returns true if the current environment is a production environment.
+   *
+   * @return bool
+   */
+  public function isEnvProd(): bool
+  {
+    return ($_SERVER['ABC_ENV']==='prod');
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Returns true if this is a GET request. Otherwise returns false.
    *
    * @return bool
@@ -121,7 +143,6 @@ class CoreRequest implements Request
   }
 
   //--------------------------------------------------------------------------------------------------------------------
-
   /**
    * Returns true if this is a OPTIONS request. Otherwise returns false.
    *
