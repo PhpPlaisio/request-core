@@ -41,6 +41,20 @@ class CoreRequest implements Request
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Returns the remote IP (this is always the next hop, not necessarily the user's IP address).
+   *
+   * @return string|null
+   *
+   * @api
+   * @since 1.0.0
+   */
+  public function getRemoteIp(): ?string
+  {
+    return $_SERVER['REMOTE_ADDR'] ?? null;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Returns the requested relative URL after. It includes the query part if any.
    *
    * @return string
@@ -62,6 +76,20 @@ class CoreRequest implements Request
     }
 
     throw new \LogicException('Unable to resolve requested URI');
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Returns the user agent.
+   *
+   * @return string|null
+   *
+   * @api
+   * @since 1.0.0
+   */
+  public function getUserAgent(): ?string
+  {
+    return $_SERVER['HTTP_USER_AGENT'] ?? null;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
