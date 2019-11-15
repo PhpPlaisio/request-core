@@ -1,29 +1,28 @@
 {
-  "name": "setbased/abc-request-core",
-  "description": "ABC-Framework: Core Request",
+  "name": "plaisio/request-core",
+  "description": "PhpPlaisio: Core Request",
   "keywords": [
-    "ABC-Framework",
+    "PhpPlaisio",
     "Request",
     "Core"
   ],
+  "license": "MIT",
   "require": {
     "php": ">=7.1.0",
-    "setbased/abc-request": "*"
+    "plaisio/request": "^0.10.0"
   },
   "require-dev": {
     "phing/phing": "^2.0.0",
-    "phpunit/phpunit": "^6.0.0"
+    "phpunit/phpunit": "^7.0.0 || ^8.0.0"
   },
-  "type": "library",
-  "license": "MIT",
   "autoload": {
     "psr-4": {
-      "SetBased\\Abc\\Request\\": "src/"
+      "Plaisio\\Request\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "SetBased\\Abc\\Request\\Test\\": "test"
+      "Plaisio\\Request\\Test\\": "test"
     }
   },
   "config": {

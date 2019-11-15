@@ -1,6 +1,7 @@
 <?php
+declare(strict_types=1);
 
-namespace SetBased\Abc\Request;
+namespace Plaisio\Request;
 
 /**
  * Class providing information about an HTTP request.
