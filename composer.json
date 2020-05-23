@@ -9,7 +9,9 @@
   "license": "MIT",
   "require": {
     "php": ">=7.3",
-    "plaisio/request": "^0.10.2"
+    "ext-mbstring": "*",
+    "plaisio/exception": "^1.1",
+    "plaisio/request": "^0.11.0"
   },
   "require-dev": {
     "phing/phing": "^2.0",

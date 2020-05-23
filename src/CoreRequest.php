@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Plaisio\Request;
 
+use Plaisio\Exception\BadRequestException;
+
 /**
  * Class providing information about an HTTP request.
  *
@@ -32,6 +34,29 @@ class CoreRequest implements Request
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Returns the value of a mandatory HTTP header sent by the user agent.
+   *
+   * @param string $header The name of the HTTP header (case insensitive and without leading HTTP_).
+   *
+   * @return string
+   *
+   * @api
+   * @since 1.0.0
+   */
+  public function getManHeader(string $header): string
+  {
+    $value = $this->getOptHeader($header);
+
+    if ($value===null)
+    {
+      throw new BadRequestException('Header %s not set.', $header);
+    }
+
+    return $value;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Returns the method of the current request.
    *
    * @return string
@@ -52,6 +77,22 @@ class CoreRequest implements Request
     }
 
     return 'GET';
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Returns the value of an HTTP header.
+   *
+   * @param string $header The name of the HTTP header (case insensitive and without leading HTTP_).
+   *
+   * @return string|null
+   *
+   * @api
+   * @since 1.0.0
+   */
+  public function getOptHeader(string $header): ?string
+  {
+    return $_SERVER['HTTP_'.mb_strtoupper($header)] ?? null;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -172,7 +213,7 @@ class CoreRequest implements Request
    */
   public function isEnvDev(): bool
   {
-    return ($_SERVER['ABC_ENV']==='dev');
+    return ($_SERVER['PLAISIO_ENV']==='dev');
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -183,7 +224,7 @@ class CoreRequest implements Request
    */
   public function isEnvProd(): bool
   {
-    return ($_SERVER['ABC_ENV']==='prod');
+    return ($_SERVER['PLAISIO_ENV']==='prod');
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -269,8 +310,6 @@ class CoreRequest implements Request
   {
     return $this->getMethod()==='PUT';
   }
-
-  //--------------------------------------------------------------------------------------------------------------------
 }
 
 //----------------------------------------------------------------------------------------------------------------------
