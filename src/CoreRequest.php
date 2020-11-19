@@ -11,8 +11,6 @@ use Plaisio\Exception\BadRequestException;
  * It provides an interface to retrieve request parameters from
  * <ul>
  * <li>$_SERVER resolving inconsistency among different web servers
- * <li>$_POST
- * <li>$_COOKIES
  * <li>REST parameters sent via other HTTP methods
  * </ul>
  */
