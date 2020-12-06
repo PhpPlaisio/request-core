@@ -11,11 +11,11 @@
     "php": ">=7.4",
     "ext-mbstring": "*",
     "plaisio/exception": "^1.1",
-    "plaisio/request": "^0.12.0"
+    "plaisio/request": "^0.13.0"
   },
   "require-dev": {
-    "phing/phing": "^2.0",
-    "phpunit/phpunit": "^9.0"
+    "phing/phing": "^2.16.3",
+    "phpunit/phpunit": "^9.5.0"
   },
   "autoload": {
     "psr-4": {
