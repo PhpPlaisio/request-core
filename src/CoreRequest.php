@@ -33,6 +33,20 @@ class CoreRequest implements Request
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Whether the request is sent via a secure channel (https).
+   *
+   * @return bool
+   *
+   * @api
+   * @since 1.0.0
+   */
+  public function isSecureChannel(): bool
+  {
+    return (isset($_SERVER['HTTPS']) && (strcasecmp($_SERVER['HTTPS'], 'on')===0 || $_SERVER['HTTPS']==='1'));
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Returns the value of cookie sent by the user agent.
    *
    * @param string $name The name of the cookie.
