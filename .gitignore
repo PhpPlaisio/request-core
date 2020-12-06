@@ -3,5 +3,6 @@
 /bin/
 /composer.lock
 /doc/
-/test/
+/test/coverage.xml
+/test/report/
 /vendor/
