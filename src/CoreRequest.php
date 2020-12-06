@@ -11,6 +11,7 @@ use Plaisio\Exception\BadRequestException;
  * It provides an interface to retrieve request parameters from
  * <ul>
  * <li>$_SERVER resolving inconsistency among different web servers
+ * <li>$_COOKIE
  * <li>REST parameters sent via other HTTP methods
  * </ul>
  */
@@ -28,6 +29,22 @@ class CoreRequest implements Request
   public function getAcceptLanguage(): ?string
   {
     return $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? null;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Returns the value of cookie sent by the user agent.
+   *
+   * @param string $name The name of the cookie.
+   *
+   * @return string|null
+   *
+   * @api
+   * @since 1.0.0
+   */
+  public function getCookie(string $name): ?string
+  {
+    return $_COOKIE[$name] ?? null;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
