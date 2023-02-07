@@ -8,14 +8,16 @@
   ],
   "license": "MIT",
   "require": {
-    "php": ">=7.4",
+    "php": ">=8.1",
     "ext-mbstring": "*",
-    "plaisio/exception": "^1.1",
-    "plaisio/request": "^0.13.0"
+    "plaisio/exception": "^1.2.0",
+    "plaisio/request": "^0.13.1"
   },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
   "require-dev": {
-    "phing/phing": "^2.16.3",
-    "phpunit/phpunit": "^9.5.0"
+    "phing/phing": "^3.0.0-RC4",
+    "phpunit/phpunit": "^9.6.3"
   },
   "autoload": {
     "psr-4": {
@@ -29,6 +31,9 @@
   },
   "config": {
     "bin-dir": "bin/",
-    "sort-packages": true
+    "sort-packages": true,
+    "allow-plugins": {
+      "phing/phing-composer-configurator": true
+    }
   }
 }

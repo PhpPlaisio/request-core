@@ -112,7 +112,7 @@ class CoreRequest implements Request
   /**
    * Returns the value of an HTTP header.
    *
-   * @param string $header The name of the HTTP header (case insensitive and without leading HTTP_).
+   * @param string $header The name of the HTTP header (case-insensitive and without leading HTTP_).
    *
    * @return string|null
    *
@@ -208,7 +208,7 @@ class CoreRequest implements Request
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Returns true if this is an AJAX (XMLHttpRequest) request. Otherwise returns false.
+   * Returns whether this is an AJAX (XMLHttpRequest) request.
    *
    * @return bool
    *
@@ -222,7 +222,7 @@ class CoreRequest implements Request
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Returns true if this is a DELETE request. Otherwise returns false.
+   * Returns whether this is a DELETE request.
    *
    * @return bool
    *
@@ -236,7 +236,7 @@ class CoreRequest implements Request
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Returns true if the current environment is a development environment.
+   * Returns whether the current environment is a development environment.
    *
    * @return bool
    */
@@ -247,7 +247,7 @@ class CoreRequest implements Request
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Returns true if the current environment is a production environment.
+   * Returns whether the current environment is a production environment.
    *
    * @return bool
    */
@@ -258,7 +258,7 @@ class CoreRequest implements Request
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Returns true if this is a GET request. Otherwise returns false.
+   * Returns whether this is a GET request.
    *
    * @return bool
    *
@@ -272,7 +272,7 @@ class CoreRequest implements Request
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Returns true if this is a HEAD request. Otherwise returns false.
+   * Returns whether this is a HEAD request.
    *
    * @return bool
    *
@@ -286,7 +286,7 @@ class CoreRequest implements Request
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Returns true if this is a OPTIONS request. Otherwise returns false.
+   * Returns whether this is a OPTIONS request.
    *
    * @return bool
    *
@@ -300,7 +300,7 @@ class CoreRequest implements Request
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Returns true if this is a PATCH request. Otherwise returns false.
+   * Returns whether this is a PATCH request.
    *
    * @return bool
    *
@@ -314,7 +314,7 @@ class CoreRequest implements Request
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Returns true if this is a POST request. Otherwise returns false.
+   * Returns whether this is a POST request.
    *
    * @return bool
    *
@@ -328,7 +328,7 @@ class CoreRequest implements Request
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Returns true if this is a PUT request. Otherwise returns false.
+   * Returns whether this is a PUT request.
    *
    * @return bool
    *
