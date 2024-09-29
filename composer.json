@@ -11,13 +11,13 @@
     "php": ">=8.3",
     "ext-mbstring": "*",
     "plaisio/exception": "^1.2.0",
-    "plaisio/request": "^0.13.1"
+    "plaisio/request": "^1.0.0",
+    "plaisio/trusted-host-authority": "^1.0.0"
   },
-  "minimum-stability": "dev",
-  "prefer-stable": true,
   "require-dev": {
-    "phing/phing": "^3.0.0-RC4",
-    "phpunit/phpunit": "^9.6.3"
+    "phing/phing": "^3.0.0",
+    "phpunit/phpunit": "^10.5.35",
+    "plaisio/console-kernel": "^1.0.1"
   },
   "autoload": {
     "psr-4": {
