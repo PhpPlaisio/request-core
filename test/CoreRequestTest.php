@@ -679,6 +679,7 @@ class CoreRequestTest extends TestCase
     foreach ($headers as $key => $value)
     {
       self::assertNull($kernel->request->getOptHeader($key));
+      self::assertNotNull($_SERVER[$key]);
     }
   }
 
