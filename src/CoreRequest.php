@@ -17,6 +17,34 @@ class CoreRequest implements Request
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Copy of $_COOKIE global value.
+   *
+   * @var array
+   */
+  private array $cookie;
+
+  /**
+   * Copy of $_SERVER global value.
+   *
+   * @var array
+   */
+  private array $server;
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Object constructor.
+   *
+   * @param array $server The $_SERVER global value.
+   * @param array $cookie The $_COOKIE global value.
+   */
+  public function __construct(array $server, array $cookie)
+  {
+    $this->server = $server;
+    $this->cookie = $cookie;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Returns the value of a property.
    *
    * Do not call this method directly as it is a PHP magic method that
@@ -48,7 +76,7 @@ class CoreRequest implements Request
    */
   public function getCookie(string $name): ?string
   {
-    return $_COOKIE[$name] ?? null;
+    return $this->cookie[$name] ?? null;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -127,7 +155,7 @@ class CoreRequest implements Request
    */
   private function getAcceptContentType(): string
   {
-    return $_SERVER['HTTP_ACCEPT'] ?? '';
+    return $this->server['HTTP_ACCEPT'] ?? '';
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -147,7 +175,7 @@ class CoreRequest implements Request
    */
   private function getAcceptEncoding(): string
   {
-    return $_SERVER['HTTP_ACCEPT_ENCODING'] ?? '';
+    return $this->server['HTTP_ACCEPT_ENCODING'] ?? '';
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -165,7 +193,7 @@ class CoreRequest implements Request
    */
   private function getAcceptLanguage(): string
   {
-    return $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '';
+    return $this->server['HTTP_ACCEPT_LANGUAGE'] ?? '';
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -184,7 +212,7 @@ class CoreRequest implements Request
    */
   private function getContentType(): ?string
   {
-    $contentType = $_SERVER['CONTENT_TYPE'] ?? null;
+    $contentType = $this->server['CONTENT_TYPE'] ?? null;
 
     return ($contentType==='') ? null : $contentType;
   }
@@ -195,7 +223,7 @@ class CoreRequest implements Request
    */
   private function getHostname(): string
   {
-    return strtolower(trim($_SERVER['HTTP_X_FORWARDED_HOST'] ?? $_SERVER['HTTP_HOST'] ?? ''));
+    return strtolower(trim($this->server['HTTP_X_FORWARDED_HOST'] ?? $this->server['HTTP_HOST'] ?? ''));
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -204,7 +232,7 @@ class CoreRequest implements Request
    */
   private function getIsAjax(): bool
   {
-    return (($_SERVER['HTTP_X_REQUESTED_WITH']) ?? '')==='XMLHttpRequest';
+    return (($this->server['HTTP_X_REQUESTED_WITH']) ?? '')==='XMLHttpRequest';
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -222,7 +250,7 @@ class CoreRequest implements Request
    */
   private function getIsEnvDev(): bool
   {
-    return ($_SERVER['PLAISIO_ENV']==='dev');
+    return ($this->server['PLAISIO_ENV']==='dev');
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -231,7 +259,7 @@ class CoreRequest implements Request
    */
   private function getIsEnvProd(): bool
   {
-    return ($_SERVER['PLAISIO_ENV']==='prod');
+    return ($this->server['PLAISIO_ENV']==='prod');
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -294,12 +322,13 @@ class CoreRequest implements Request
    */
   private function getIsSecureChannel(): bool
   {
-    if (isset($_SERVER['HTTPS']) && (strcasecmp($_SERVER['HTTPS'], 'on')===0 || $_SERVER['HTTPS']==='1'))
+    if (isset($this->server['HTTPS']) && (strcasecmp($this->server['HTTPS'], 'on')===0 || $this->server['HTTPS']==='1'))
     {
       return true;
     }
 
-    if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strcasecmp($_SERVER['HTTP_X_FORWARDED_PROTO'], 'https')===0)
+    if (isset($this->server['HTTP_X_FORWARDED_PROTO']) && strcasecmp($this->server['HTTP_X_FORWARDED_PROTO'],
+                                                                     'https')===0)
     {
       return true;
     }
@@ -313,14 +342,14 @@ class CoreRequest implements Request
    */
   private function getMethod(): string
   {
-    if (isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']))
+    if (isset($this->server['HTTP_X_HTTP_METHOD_OVERRIDE']))
     {
-      return strtoupper($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']);
+      return strtoupper($this->server['HTTP_X_HTTP_METHOD_OVERRIDE']);
     }
 
-    if (isset($_SERVER['REQUEST_METHOD']))
+    if (isset($this->server['REQUEST_METHOD']))
     {
-      return strtoupper($_SERVER['REQUEST_METHOD']);
+      return strtoupper($this->server['REQUEST_METHOD']);
     }
 
     return 'GET';
@@ -332,7 +361,7 @@ class CoreRequest implements Request
    */
   private function getPort(): int
   {
-    $port = $_SERVER['HTTP_X_FORWARDED_PORT'] ?? $_SERVER['SERVER_PORT'] ?? null;
+    $port = $this->server['HTTP_X_FORWARDED_PORT'] ?? $this->server['SERVER_PORT'] ?? null;
     if ($port===null)
     {
       $port = ($this->isSecureChannel) ? self::HTTPS_PORT : self::HTTP_PORT;
@@ -356,7 +385,7 @@ class CoreRequest implements Request
    */
   private function getReferrer(): ?string
   {
-    return $_SERVER['HTTP_REFERER'] ?? null;
+    return $this->server['HTTP_REFERER'] ?? null;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -365,7 +394,7 @@ class CoreRequest implements Request
    */
   private function getRemoteIp(): ?string
   {
-    return $_SERVER['REMOTE_ADDR'] ?? null;
+    return $this->server['REMOTE_ADDR'] ?? null;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -374,7 +403,7 @@ class CoreRequest implements Request
    */
   private function getRequestTime(): ?float
   {
-    return $_SERVER['REQUEST_TIME_FLOAT'] ?? null;
+    return $this->server['REQUEST_TIME_FLOAT'] ?? null;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -383,12 +412,12 @@ class CoreRequest implements Request
    */
   private function getRequestUri(): string
   {
-    if (!isset($_SERVER['REQUEST_URI']))
+    if (!isset($this->server['REQUEST_URI']))
     {
       throw new \LogicException('Unable to resolve requested URI.');
     }
 
-    return $_SERVER['REQUEST_URI'];
+    return $this->server['REQUEST_URI'];
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -409,7 +438,7 @@ class CoreRequest implements Request
    */
   private function getUserAgent(): ?string
   {
-    return $_SERVER['HTTP_USER_AGENT'] ?? null;
+    return $this->server['HTTP_USER_AGENT'] ?? null;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -527,24 +556,24 @@ class CoreRequest implements Request
   {
     $invalid = [];
 
-    foreach ($_SERVER as $key => $value)
+    foreach ($this->server as $key => $value)
     {
       if (str_starts_with($key, 'HTTP_'))
       {
         if (preg_match('/[^\x20-\x7E]/', $value)===1)
         {
-          $invalid[]     = $key;
-          $_SERVER[$key] = preg_replace('/[^\x20-\x7E]/', '?', $value);
+          $invalid[]          = $key;
+          $this->server[$key] = preg_replace('/[^\x20-\x7E]/', '?', $value);
         }
       }
     }
 
-    foreach ($_COOKIE as $key => $value)
+    foreach ($this->cookie as $key => $value)
     {
       if (preg_match('/[^\x20-\x7E]/', $value)===1)
       {
-        $invalid[]     = $key;
-        $_COOKIE[$key] = preg_replace('/[^\x20-\x7E]/', '?', $value);
+        $invalid[]          = $key;
+        $this->cookie[$key] = preg_replace('/[^\x20-\x7E]/', '?', $value);
       }
     }
 
@@ -560,13 +589,15 @@ class CoreRequest implements Request
    */
   private function validateSecureHeaders(): void
   {
-    $secureHeaders = array_intersect_key($_SERVER, $this->secureHeaders);
+    $secureHeaders = array_intersect_key($this->server, $this->secureHeaders);
     if (!empty($secureHeaders))
     {
       if (!Nub::$nub->trustedHostAuthority->isTrustedHost($this->getRemoteIp() ?? ''))
       {
-        throw new BadRequestException("Received secure headers '%s' of a non-trusted host.",
-                                      implode(', ', array_keys($secureHeaders)));
+        foreach ($secureHeaders as $key)
+        {
+          unset($this->server[$key]);
+        }
       }
     }
   }

@@ -5,8 +5,6 @@ namespace Plaisio\Request\Test;
 
 use PHPUnit\Framework\TestCase;
 use Plaisio\Exception\BadRequestException;
-use Plaisio\Request\CoreRequest;
-use Plaisio\Request\Request;
 
 /**
  * Test cases for class CoreRequest.
@@ -14,13 +12,6 @@ use Plaisio\Request\Request;
 class CoreRequestTest extends TestCase
 {
   //--------------------------------------------------------------------------------------------------------------------
-  /**
-   * @var Request
-   */
-  private Request $request;
-
-  //--------------------------------------------------------------------------------------------------------------------
-
   /**
    * Returns test cases for getAbsoluteUrl().
    */
@@ -270,8 +261,6 @@ class CoreRequestTest extends TestCase
    */
   public function setUp(): void
   {
-    $this->request = new CoreRequest();
-
     $keys = ['CONTENT_TYPE',
              'HTTPS',
              'HTTP_ACCEPT',
@@ -298,6 +287,8 @@ class CoreRequestTest extends TestCase
     {
       unset($_SERVER[$key]);
     }
+
+    $_COOKIE = [];
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -315,8 +306,9 @@ class CoreRequestTest extends TestCase
 
     $kernel                                  = new TestKernel();
     TestTrustedHostAuthority::$isTrustedHost = true;
+    $kernel->request->validate();
 
-    self::assertSame($expected, $this->request->absoluteUrl);
+    self::assertSame($expected, $kernel->request->absoluteUrl);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -332,7 +324,9 @@ class CoreRequestTest extends TestCase
       $_SERVER['HTTP_ACCEPT'] = $accept;
     }
 
-    self::assertSame($expected, $this->request->acceptContentTypes);
+    $kernel = new TestKernel();
+    $kernel->request->validate();
+    self::assertSame($expected, $kernel->request->acceptContentTypes);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -346,7 +340,9 @@ class CoreRequestTest extends TestCase
     $expected = ['gzip'    => ['q' => 1.0],
                  'deflate' => ['q' => 1.0],
                  'br'      => ['q' => 1.0]];
-    self::assertSame($expected, $this->request->acceptEncodings);
+    $kernel   = new TestKernel();
+    $kernel->request->validate();
+    self::assertSame($expected, $kernel->request->acceptEncodings);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -359,7 +355,9 @@ class CoreRequestTest extends TestCase
   {
     $_SERVER['HTTP_ACCEPT_LANGUAGE'] = $accept;
 
-    self::assertSame($expected, $this->request->acceptLanguages);
+    $kernel = new TestKernel();
+    $kernel->request->validate();
+    self::assertSame($expected, $kernel->request->acceptLanguages);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -375,7 +373,9 @@ class CoreRequestTest extends TestCase
       $_SERVER['CONTENT_TYPE'] = $value;
     }
 
-    self::assertSame($expected, $this->request->contentType);
+    $kernel = new TestKernel();
+    $kernel->request->validate();
+    self::assertSame($expected, $kernel->request->contentType);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -391,8 +391,10 @@ class CoreRequestTest extends TestCase
       $_SERVER['PLAISIO_ENV'] = $value;
     }
 
-    self::assertSame($isDev, $this->request->isEnvDev);
-    self::assertSame($isProd, $this->request->isEnvProd);
+    $kernel = new TestKernel();
+    $kernel->request->validate();
+    self::assertSame($isDev, $kernel->request->isEnvDev);
+    self::assertSame($isProd, $kernel->request->isEnvProd);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -402,11 +404,13 @@ class CoreRequestTest extends TestCase
   public function testGetManHeader(): void
   {
     $_SERVER['HTTP_MANDATORY'] = 'mandatory';
-    self::assertSame('mandatory', $this->request->getManHeader('Mandatory'));
+    $kernel                    = new TestKernel();
+    $kernel->request->validate();
+    self::assertSame('mandatory', $kernel->request->getManHeader('Mandatory'));
 
     unset($_SERVER['HTTP_MANDATORY']);
     $this->expectException(BadRequestException::class);
-    $this->request->getManHeader('Mandatory');
+    $kernel->request->getManHeader('Mandatory');
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -416,13 +420,14 @@ class CoreRequestTest extends TestCase
   public function testGetOptHeader(): void
   {
     $_SERVER['HTTP_OPTIONAL'] = 'optional';
-    self::assertSame('optional', $this->request->getOptHeader('Optional'));
-
-    $_SERVER['HTTP_OPTIONAL'] = null;
-    self::assertNull($this->request->getOptHeader('Optional'));
+    $kernel                   = new TestKernel();
+    $kernel->request->validate();
+    self::assertSame('optional', $kernel->request->getOptHeader('Optional'));
 
     unset($_SERVER['HTTP_OPTIONAL']);
-    self::assertNull($this->request->getOptHeader('Optional'));
+    $kernel = new TestKernel();
+    $kernel->request->validate();
+    self::assertNull($kernel->request->getOptHeader('Optional'));
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -432,7 +437,9 @@ class CoreRequestTest extends TestCase
   public function testGetRequestUriNotSet(): void
   {
     $this->expectException(\LogicException::class);
-    $this->request->requestUri;
+    $kernel = new TestKernel();
+    $kernel->request->validate();
+    $kernel->request->requestUri;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -442,15 +449,16 @@ class CoreRequestTest extends TestCase
   public function testInvalidCookie(): void
   {
     $_COOKIE['ses_session_token'] = "01234567890\x0AABC";
+    $kernel                       = new TestKernel();
     try
     {
-      $this->request->validate();
+      $kernel->request->validate();
       self::fail();
     }
     catch (BadRequestException $exception)
     {
       self::assertEquals('Invalid HTTP header(s) or cookie(s) found: ses_session_token.', $exception->getMessage());
-      self::assertEquals('01234567890?ABC', $this->request->getCookie('ses_session_token'));
+      self::assertEquals('01234567890?ABC', $kernel->request->getCookie('ses_session_token'));
     }
   }
 
@@ -461,15 +469,16 @@ class CoreRequestTest extends TestCase
   public function testInvalidRequestHeader(): void
   {
     $_SERVER['HTTP_REFERER'] = "https://\xE4\xE5\xF8\xE5\xE2\xFB\xE9\xF0\xE5\xEC\xEE\xED\xF2.\xF0\xF4/";
+    $kernel                  = new TestKernel();
     try
     {
-      $this->request->validate();
+      $kernel->request->validate();
       self::fail();
     }
     catch (BadRequestException $exception)
     {
       self::assertEquals('Invalid HTTP header(s) or cookie(s) found: HTTP_REFERER.', $exception->getMessage());
-      self::assertEquals('https://?????????????.??/', $this->request->referrer);
+      self::assertEquals('https://?????????????.??/', $kernel->request->referrer);
     }
   }
 
@@ -486,7 +495,9 @@ class CoreRequestTest extends TestCase
       $_SERVER['HTTP_X_REQUESTED_WITH'] = $requestWith;
     }
 
-    self::assertSame($expected, $this->request->isAjax);
+    $kernel = new TestKernel();
+    $kernel->request->validate();
+    self::assertSame($expected, $kernel->request->isAjax);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -506,7 +517,9 @@ class CoreRequestTest extends TestCase
       $_SERVER['HTTPS'] = $https;
     }
 
-    self::assertFalse($this->request->isSecureChannel);
+    $kernel = new TestKernel();
+    $kernel->request->validate();
+    self::assertFalse($kernel->request->isSecureChannel);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -519,7 +532,9 @@ class CoreRequestTest extends TestCase
   {
     $_SERVER['HTTPS'] = $https;
 
-    self::assertTrue($this->request->isSecureChannel);
+    $kernel = new TestKernel();
+    $kernel->request->validate();
+    self::assertTrue($kernel->request->isSecureChannel);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -539,15 +554,17 @@ class CoreRequestTest extends TestCase
       $_SERVER['REQUEST_METHOD'] = $method;
     }
 
-    self::assertSame(($value==='delete'), $this->request->isDelete);
-    self::assertSame(($value==='get'), $this->request->isGet);
-    self::assertSame(($value==='head'), $this->request->isHead);
-    self::assertSame(($value==='options'), $this->request->isOptions);
-    self::assertSame(($value==='patch'), $this->request->isPatch);
-    self::assertSame(($value==='post'), $this->request->isPost);
-    self::assertSame(($value==='put'), $this->request->isPut);
+    $kernel = new TestKernel();
+    $kernel->request->validate();
+    self::assertSame(($value==='delete'), $kernel->request->isDelete);
+    self::assertSame(($value==='get'), $kernel->request->isGet);
+    self::assertSame(($value==='head'), $kernel->request->isHead);
+    self::assertSame(($value==='options'), $kernel->request->isOptions);
+    self::assertSame(($value==='patch'), $kernel->request->isPatch);
+    self::assertSame(($value==='post'), $kernel->request->isPost);
+    self::assertSame(($value==='put'), $kernel->request->isPut);
 
-    self::assertSame(mb_strtoupper($value), $this->request->method);
+    self::assertSame(mb_strtoupper($value), $kernel->request->method);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -557,7 +574,9 @@ class CoreRequestTest extends TestCase
   public function testNoSuchProperty(): void
   {
     $this->expectException(\LogicException::class);
-    echo $this->request->noSuchProperty;
+    $kernel = new TestKernel();
+    $kernel->request->validate();
+    echo $kernel->request->noSuchProperty;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -581,7 +600,9 @@ class CoreRequestTest extends TestCase
       $_SERVER['HTTPS'] = 'on';
     }
 
-    self::assertSame($expected, $this->request->port);
+    $kernel = new TestKernel();
+    $kernel->request->validate();
+    self::assertSame($expected, $kernel->request->port);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -593,7 +614,9 @@ class CoreRequestTest extends TestCase
     $_SERVER['SERVER_PORT'] = 'port';
 
     $this->expectException(BadRequestException::class);
-    $this->request->port;
+    $kernel = new TestKernel();
+    $kernel->request->validate();
+    $kernel->request->port;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -606,7 +629,9 @@ class CoreRequestTest extends TestCase
     $_SERVER['SERVER_PORT']           = '88';
 
     $this->expectException(BadRequestException::class);
-    $this->request->port;
+    $kernel = new TestKernel();
+    $kernel->request->validate();
+    $kernel->request->port;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -618,7 +643,9 @@ class CoreRequestTest extends TestCase
     $now                           = microtime(true);
     $_SERVER['REQUEST_TIME_FLOAT'] = $now;
 
-    self::assertEquals($now, $this->request->requestTime);
+    $kernel = new TestKernel();
+    $kernel->request->validate();
+    self::assertEquals($now, $kernel->request->requestTime);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -627,7 +654,9 @@ class CoreRequestTest extends TestCase
    */
   public function testRequestTimeNull(): void
   {
-    self::assertNull($this->request->requestTime);
+    $kernel = new TestKernel();
+    $kernel->request->validate();
+    self::assertNull($kernel->request->requestTime);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -643,17 +672,13 @@ class CoreRequestTest extends TestCase
       $_SERVER[$key] = $value;
     }
 
-    try
+    $kernel                                  = new TestKernel();
+    TestTrustedHostAuthority::$isTrustedHost = false;
+    $kernel->request->validate();
+
+    foreach ($headers as $key => $value)
     {
-      $kernel                                  = new TestKernel();
-      TestTrustedHostAuthority::$isTrustedHost = false;
-      $this->request->validate();
-      self::fail();
-    }
-    catch (BadRequestException $exception)
-    {
-      $message = sprintf("Received secure headers '%s' of a non-trusted host.", implode(', ', array_keys($headers)));
-      self::assertEquals($message, $exception->getMessage());
+      self::assertNull($kernel->request->getOptHeader($key));
     }
   }
 
@@ -672,7 +697,7 @@ class CoreRequestTest extends TestCase
 
     $kernel                                  = new TestKernel();
     TestTrustedHostAuthority::$isTrustedHost = true;
-    $this->request->validate();
+    $kernel->request->validate();
     self::assertTrue(true);
   }
 
@@ -684,7 +709,9 @@ class CoreRequestTest extends TestCase
   {
     $_SERVER['HTTP_USER_AGENT'] = 'James Bond';
 
-    self::assertSame('James Bond', $this->request->userAgent);
+    $kernel = new TestKernel();
+    $kernel->request->validate();
+    self::assertSame('James Bond', $kernel->request->userAgent);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -693,7 +720,9 @@ class CoreRequestTest extends TestCase
    */
   public function testUserAgentNull(): void
   {
-    self::assertNull($this->request->userAgent);
+    $kernel = new TestKernel();
+    $kernel->request->validate();
+    self::assertNull($kernel->request->userAgent);
   }
 
   //--------------------------------------------------------------------------------------------------------------------

@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Plaisio\Request\Test;
 
 use Plaisio\PlaisioKernel;
-use Plaisio\TrustedHostAuthority\TrustedHostAuthority;
+use Plaisio\Request\CoreRequest;
 
 /**
  * A kernel for testing purposes.
@@ -13,11 +13,18 @@ class TestKernel extends PlaisioKernel
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Return the trusted host authority.
-   *
-   * @return TrustedHostAuthority
+   * Returns the helper object for providing information about the HTTP request.
    */
-  protected function getTrustedHostAuthority(): TrustedHostAuthority
+  protected function getRequest(): CoreRequest
+  {
+    return new CoreRequest($_SERVER, $_COOKIE);
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Returns the trusted host authority.
+   */
+  protected function getTrustedHostAuthority(): TestTrustedHostAuthority
   {
     return new TestTrustedHostAuthority();
   }
