@@ -4,7 +4,9 @@ declare(strict_types=1);
 namespace Plaisio\Request;
 
 use Plaisio\Exception\BadRequestException;
+use Plaisio\Helper\Html;
 use Plaisio\Kernel\Nub;
+use Plaisio\RequestParameterResolver\RequestParameterResolver;
 use SetBased\Exception\LogicException;
 use SetBased\Helper\Cast;
 use SetBased\Helper\InvalidCastException;
@@ -19,31 +21,61 @@ class CoreRequest implements Request
 {
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Copy of $_COOKIE global value.
+   * Sanitized copy of the $_COOKIE super global variable.
    *
    * @var array
    */
-  private array $cookie;
+  public array $cookie;
 
   /**
-   * Copy of $_SERVER global value.
+   * Sanitized copy of the $_GET super global variable.
    *
    * @var array
    */
-  private array $server;
+  public array $cgi;
+
+  /**
+   * Sanitized copy of the $_POST super global variable.
+   *
+   * @var array
+   */
+  public array $post;
+
+  /**
+   * Sanitized copy of the $_SERVER super global variable.
+   *
+   * @var array
+   */
+  public array $server;
+
+  /**
+   * The request parameter resolver.
+   *
+   * @var RequestParameterResolver
+   */
+  private RequestParameterResolver $requestParameterResolver;
 
   //--------------------------------------------------------------------------------------------------------------------
-
   /**
    * Object constructor.
    *
-   * @param array $server The $_SERVER global value.
-   * @param array $cookie The $_COOKIE global value.
+   * @param array                    $server                   The $_SERVER super global variable.
+   * @param array                    $get                      The $_GET super global variable.
+   * @param array                    $post                     The $_POST super global variable.
+   * @param array                    $cookie                   The $_COOKIE super global variable.
+   * @param RequestParameterResolver $requestParameterResolver The request parameter resolver.
    */
-  public function __construct(array $server, array $cookie)
+  public function __construct(array                    $server,
+                              array                    $get,
+                              array                    $post,
+                              array                    $cookie,
+                              RequestParameterResolver $requestParameterResolver)
   {
     $this->server = $server;
-    $this->cookie = $cookie;
+    $this->cgi    = $get;
+    $this->post   = $post;
+    $this->cookie                   = $cookie;
+    $this->requestParameterResolver = $requestParameterResolver;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -571,7 +603,7 @@ class CoreRequest implements Request
       {
         if (preg_match('/[^\x20-\x7E]/', $value)===1)
         {
-          $invalid[]          = $key;
+          $invalid[]          = sprintf('$_SERVER[%s] => %s', bin2hex($key), bin2hex($value));
           $this->server[$key] = preg_replace('/[^\x20-\x7E]/', '?', $value);
         }
       }
@@ -581,14 +613,38 @@ class CoreRequest implements Request
     {
       if (preg_match('/[^\x20-\x7E]/', $value)===1)
       {
-        $invalid[]          = $key;
+        $invalid[]          = sprintf('$_COOKIE[%s] => %s', bin2hex($key), bin2hex($value));
         $this->cookie[$key] = preg_replace('/[^\x20-\x7E]/', '?', $value);
+      }
+    }
+
+    foreach ($this->cgi as $key => $value)
+    {
+      if (!mb_check_encoding($value, Html::$encoding))
+      {
+        $invalid[]       = sprintf('$_GET[%s] => %s', bin2hex($key), bin2hex($value));
+        $this->cgi[$key] = mb_convert_encoding($value, Html::$encoding, Html::$encoding);
+      }
+    }
+
+    $get = $this->requestParameterResolver->resolveRequestParameters($this->requestUri);
+    foreach ($get as $key => $value)
+    {
+      if (!mb_check_encoding($value, Html::$encoding))
+      {
+        $invalid[]       = sprintf('$_GET[%s] => %s', bin2hex($key), bin2hex($value));
+        $this->cgi[$key] = mb_convert_encoding($value, Html::$encoding, Html::$encoding);
+      }
+      else
+      {
+        $this->cgi[$key] = $value;
       }
     }
 
     if (!empty($invalid))
     {
-      throw new BadRequestException('Invalid HTTP header(s) or cookie(s) found: %s.', implode(' ', $invalid));
+      throw new BadRequestException('Invalid HTTP header(s), GET variable(s), POST variable(s) or cookie(s) found: %s.',
+                                    implode(' ', $invalid));
     }
   }
 

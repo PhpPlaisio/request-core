@@ -3,28 +3,24 @@ declare(strict_types=1);
 
 namespace Plaisio\Request\Test;
 
-use Plaisio\TrustedHostAuthority\TrustedHostAuthority;
+use Plaisio\PlaisioObject;
+use Plaisio\RequestParameterResolver\RequestParameterResolver;
 
 /**
- * A trusted host authority for testing purposes.
+ * A RequestParameterResolver for testing purposes.
  */
-class TestTrustedHostAuthority implements TrustedHostAuthority
+class TestRequestParameterResolver implements RequestParameterResolver
 {
   //--------------------------------------------------------------------------------------------------------------------
-  /**
-   * Whether to remote host is a trusted host.
-   *
-   * @var bool
-   */
-  public static bool $isTrustedHost = false;
+  public static array $get = [];
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * @inheritdoc
+   * Resolves the parameters of a clean URL and enhances $_GET accordingly.
    */
-  public function isTrustedHost(string $ip): bool
+  public function resolveRequestParameters(string $requestUri): array
   {
-    return self::$isTrustedHost;
+    return self::$get;
   }
 
   //--------------------------------------------------------------------------------------------------------------------

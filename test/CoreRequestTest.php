@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Plaisio\Request\Test;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Plaisio\Exception\BadRequestException;
 
@@ -294,9 +295,8 @@ class CoreRequestTest extends TestCase
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Test for getAbsoluteUrl().
-   *
-   * @dataProvider getAbsoluteUrlData
    */
+  #[DataProvider('getAbsoluteUrlData')]
   public function testAbsoluteUrl(array $server, string $expected): void
   {
     foreach ($server as $key => $value)
@@ -314,9 +314,8 @@ class CoreRequestTest extends TestCase
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Tests for getAcceptContentType().
-   *
-   * @dataProvider getAcceptContentTypesData
    */
+  #[DataProvider('getAcceptContentTypesData')]
   public function testAcceptContentType(?string $accept, array $expected): void
   {
     if ($accept!==null)
@@ -348,9 +347,8 @@ class CoreRequestTest extends TestCase
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Tests for getAcceptLanguages().
-   *
-   * @dataProvider getAcceptLanguagesData
    */
+  #[DataProvider('getAcceptLanguagesData')]
   public function testAcceptLanguages(string $accept, array $expected): void
   {
     $_SERVER['HTTP_ACCEPT_LANGUAGE'] = $accept;
@@ -363,9 +361,8 @@ class CoreRequestTest extends TestCase
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Tests for getContentType().
-   *
-   * @dataProvider getContentTypeData
    */
+  #[DataProvider('getContentTypeData')]
   public function testContentType(?string $value, ?string $expected): void
   {
     if ($value!==null)
@@ -381,9 +378,8 @@ class CoreRequestTest extends TestCase
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Tests for getIsEnvDev() and getIsEnvProd().
-   *
-   * @dataProvider getEnvData
    */
+  #[DataProvider('getEnvData')]
   public function testEnv(?string $value, bool $isDev, bool $isProd): void
   {
     if ($value!==null)
@@ -436,6 +432,8 @@ class CoreRequestTest extends TestCase
    */
   public function testGetRequestUriNotSet(): void
   {
+    $_SERVER['REQUEST_URI'] = 'unset';
+
     $this->expectException(\LogicException::class);
     $kernel = new TestKernel();
     $kernel->request->validate();
@@ -457,7 +455,8 @@ class CoreRequestTest extends TestCase
     }
     catch (BadRequestException $exception)
     {
-      self::assertEquals('Invalid HTTP header(s) or cookie(s) found: ses_session_token.', $exception->getMessage());
+      self::assertEquals('Invalid HTTP header(s), GET variable(s), POST variable(s) or cookie(s) found: '.'$_COOKIE[7365735f73657373696f6e5f746f6b656e] => 30313233343536373839300a414243.',
+                         $exception->getMessage());
       self::assertEquals('01234567890?ABC', $kernel->request->getCookie('ses_session_token'));
     }
   }
@@ -477,7 +476,8 @@ class CoreRequestTest extends TestCase
     }
     catch (BadRequestException $exception)
     {
-      self::assertEquals('Invalid HTTP header(s) or cookie(s) found: HTTP_REFERER.', $exception->getMessage());
+      self::assertEquals('Invalid HTTP header(s), GET variable(s), POST variable(s) or cookie(s) found: '.'$_SERVER[485454505f52454645524552] => 68747470733a2f2fe4e5f8e5e2fbe9f0e5eceeedf22ef0f42f.',
+                         $exception->getMessage());
       self::assertEquals('https://?????????????.??/', $kernel->request->referrer);
     }
   }
@@ -485,9 +485,8 @@ class CoreRequestTest extends TestCase
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Tests for getIsAjax().
-   *
-   * @dataProvider getIsAjaxData
    */
+  #[DataProvider('getIsAjaxData')]
   public function testIsAjax(?string $requestWith, bool $expected): void
   {
     if ($requestWith!==null)
@@ -503,9 +502,8 @@ class CoreRequestTest extends TestCase
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Tests for getIsSecureChannel().
-   *
-   * @dataProvider getSecureChannelFalse
    */
+  #[DataProvider('getSecureChannelFalse')]
   public function testIsSecureChannelFalse(?string $https, bool $unset): void
   {
     if ($unset)
@@ -525,9 +523,8 @@ class CoreRequestTest extends TestCase
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Tests for getIsSecureChannel() (on case-insensitive).
-   *
-   * @dataProvider secureChannelTrue
    */
+  #[DataProvider('secureChannelTrue')]
   public function testIsSecureChannelTrue(string $https): void
   {
     $_SERVER['HTTPS'] = $https;
@@ -540,9 +537,8 @@ class CoreRequestTest extends TestCase
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Tests for getMethod() its associated methods.
-   *
-   * @dataProvider getMethodData
    */
+  #[DataProvider('getMethodData')]
   public function testMethod(?string $override, ?string $method, string $value): void
   {
     if ($override!==null)
@@ -582,9 +578,8 @@ class CoreRequestTest extends TestCase
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Tests for getPort().
-   *
-   * @dataProvider getPorts
    */
+  #[DataProvider('getPorts')]
   public function testPort(?string $forwardPort, ?string $serverPort, bool $isSecure, int $expected): void
   {
     if ($forwardPort!==null)
@@ -636,6 +631,34 @@ class CoreRequestTest extends TestCase
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
+   * Test getPort() with a negative port.
+   */
+  public function testPortBad3(): void
+  {
+    $_SERVER['SERVER_PORT'] = '-1';
+
+    $this->expectException(BadRequestException::class);
+    $kernel = new TestKernel();
+    $kernel->request->validate();
+    $kernel->request->port;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
+   * Test getPort() with a port to large for a 16-bit unsigned integer.
+   */
+  public function testPortBad4(): void
+  {
+    $_SERVER['SERVER_PORT'] = (string)(2 ** 16 + 1);
+
+    $this->expectException(BadRequestException::class);
+    $kernel = new TestKernel();
+    $kernel->request->validate();
+    $kernel->request->port;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+  /**
    * Test for getRequestTime() when REQUEST_TIME_FLOAT is set.
    */
   public function testRequestTime(): void
@@ -662,9 +685,8 @@ class CoreRequestTest extends TestCase
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Test secure headers from a non-trusted host.
-   *
-   * @dataProvider getInsecureHeaders
    */
+  #[DataProvider('getInsecureHeaders')]
   public function testSecureHeadersNotTrusted(array $headers): void
   {
     foreach ($headers as $key => $value)
@@ -686,9 +708,8 @@ class CoreRequestTest extends TestCase
   //--------------------------------------------------------------------------------------------------------------------
   /**
    * Test secure header from a trusted host.
-   *
-   * @dataProvider getInsecureHeaders
    */
+  #[DataProvider('getInsecureHeaders')]
   public function testSecureHeadersTrusted(array $headers): void
   {
     foreach ($headers as $key => $value)

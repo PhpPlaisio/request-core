@@ -17,7 +17,16 @@ class TestKernel extends PlaisioKernel
    */
   protected function getRequest(): CoreRequest
   {
-    return new CoreRequest($_SERVER, $_COOKIE);
+    if (!isset($_SERVER['REQUEST_URI']))
+    {
+      $_SERVER['REQUEST_URI'] = '/index.html';
+    }
+    if ($_SERVER['REQUEST_URI']==='unset')
+    {
+      unset($_SERVER['REQUEST_URI']);
+    }
+
+    return new CoreRequest($_SERVER, $_GET, $_POST, $_COOKIE, new TestRequestParameterResolver());
   }
 
   //--------------------------------------------------------------------------------------------------------------------
