@@ -6,6 +6,8 @@ namespace Plaisio\Request;
 use Plaisio\Exception\BadRequestException;
 use Plaisio\Kernel\Nub;
 use SetBased\Exception\LogicException;
+use SetBased\Helper\Cast;
+use SetBased\Helper\InvalidCastException;
 
 /**
  * Class providing information about an HTTP request.
@@ -31,6 +33,7 @@ class CoreRequest implements Request
   private array $server;
 
   //--------------------------------------------------------------------------------------------------------------------
+
   /**
    * Object constructor.
    *
@@ -368,11 +371,18 @@ class CoreRequest implements Request
     }
     else
     {
-      if (is_string($port) && preg_match('/^\d+$/', $port)!==1)
+      try
       {
-        throw new BadRequestException('Port must be an integer.');
+        $port = Cast::toManInt($port);
       }
-      $port = (int)$port;
+      catch (InvalidCastException $exception)
+      {
+        throw new BadRequestException([$exception], 'Port must be an integer.');
+      }
+      if ($port<=0 || $port>65535)
+      {
+        throw new BadRequestException('Port must be between 1 and 65535, got %d.', $port);
+      }
     }
 
     return $port;
@@ -549,8 +559,7 @@ class CoreRequest implements Request
 
   //--------------------------------------------------------------------------------------------------------------------
   /**
-   * Validates the character set of the HTTP_* headers and cookies. Only US-ASCII coded
-   * character are allowed.
+   * Validates the character set of the HTTP_* headers and cookies. Only US-ASCII coded characters are allowed.
    */
   private function validateCharset(): void
   {
