@@ -22,6 +22,9 @@
     "phpunit/phpunit": "^11.5.25",
     "plaisio/console-kernel": "^1.2.0"
   },
+  "conflict": {
+    "plaisio/cgi-core": "<1.10.0"
+  },
   "autoload": {
     "psr-4": {
       "Plaisio\\Request\\": "src/"
